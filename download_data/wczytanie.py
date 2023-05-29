@@ -21,7 +21,7 @@ def download_data_from_files(path, day_start, day_end):
         # pominięcie pierwszych linijek z metadanymi
         df_file = pd.read_csv(nazwa, sep='\t', skiprows=25)
         df_file = df_file['[DATA]'].str.split('  ', n=-1, expand=True)
-        df_file.columns = ['data', 'godzina', 'raw[nm/s2]', 'ciśnienie[mBar]', 'residua']
+        df_file.columns = ['data', 'godzina', 'raw[nm/s2]', 'cisnienie[mBar]', 'residua']
         df_file['godzina'] = df_file['godzina'].str.replace(" ", ":")
 
         df = pd.concat([df, df_file])
@@ -36,7 +36,7 @@ def download_data_from_files(path, day_start, day_end):
     df['data'] = pd.to_datetime(df['data'])
     # df['godzina'] = df['godzina'].str.replace(" ", ":")
     df['czas'] = df['data'] + pd.to_timedelta(df['godzina'])
-    df['ciśnienie[mBar]'] = df['ciśnienie[mBar]'].astype(float)
+    df['cisnienie[mBar]'] = df['cisnienie[mBar]'].astype(float)
     df['raw[nm/s2]'] = df['raw[nm/s2]'].astype(float)
     df['residua'] = df['residua'].astype(float)
 
@@ -86,23 +86,16 @@ def calculate_frequency(df):
 
     # Przeliczenie jednostek przyspieszenia z nm/s^2 na mGal
     df['przyspieszenie'] = df['residua'] / (10**4)
+    df['przyspieszenie']= np.log(df['przyspieszenie'])
     przyspieszenie = df['przyspieszenie'].values
 
     # Obliczenie transformaty Fouriera
     transformaty = fft.fft(przyspieszenie)
 
     # Obliczenie wektora częstotliwości
-    czestotliwosci = fft.fftfreq(liczba_probek, 1/84600)
+    czestotliwosci = fft.fftfreq(liczba_probek)
 
-    # Znalezienie indeksu maksymalnej amplitudy
-    indeks_maks_amplitudy = np.argmax(np.abs(transformaty))
-    # print('%.10f', indeks_maks_amplitudy)
-
-    # Obliczenie częstotliwości odpowiadającej maksymalnej amplitudzie
-    czestotliwosc = czestotliwosci[indeks_maks_amplitudy]
-    # print(czestotliwosc)
-
-    df['czestotliwosc[Hz]'] = np.abs(czestotliwosc)
+    df['czestotliwosc[Hz]'] = np.abs(czestotliwosci)
     # print('%.3f', df['czestotliwosc[Hz]'][100])
 
     return df
