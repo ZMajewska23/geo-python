@@ -4,28 +4,47 @@ import matplotlib.pyplot as plot
 import seaborn as sns
 import statsmodels as sm
 
-
-########wczytanie csv
+#wczytanie csv dla miesiecy
 df_month = pd.read_csv('data/df_month.csv', sep=';', decimal=',')
+#wczytanie csv dla dni
+df_days = pd.read_csv('data/df_days.csv', sep=';', decimal=',')
+#wczytanie csv dla godzin
+df_hours = pd.read_csv('data/df_hours.csv', sep=';', decimal=',')
+#wczytanie csv dla minut
+df_minutes = pd.read_csv('data/df_minutes.csv', sep=';', decimal=',')
 
-##########caluclate_mean
-# df_mean = df_month.groupby(['miesiac', 'rok']).mean(numeric_only=True).reset_index()
+#analiza wstepna
+# df_stats = df_minutes.describe()
+# print(df_stats)
+# df_stats = df_hours.describe()
+# print(df_stats)
+# df_stats = df_days.describe()
+# print(df_stats)
+df_stats = df_month.describe()
+# print(df_stats)
 
-# print(df_mean)
 
+#####SREDNIA
 
+#srednia dla dni 
+# df_mean = df_days.groupby(['data']).mean(numeric_only=True).reset_index()
+# print("dzień ze średnią maksymalną:", df_mean.max())
+# print("dzień ze średnią minimalną:", df_mean.min())
+
+###WYKRES ZE ŚREDNIĄ
 # plot.figure(figsize = (6,3))
-# plot.scatter(df_mean['miesiac'], df_mean['czestotliwosc[Hz]'])
+# plot.scatter(df_month['miesiac'], df_month['czestotliwosc[Hz]'])
 # plot.xlabel('Months')
 # plot.ylabel('Frequency')
 # plot.title("Rozkład średnich miesięcznych")
 # plot.show()
 
-##########średnia krocząca
-df_step_mean = df_month['residua'].rolling(window=7, step = None)
-# print(df_step_mean.min())
+############średnia krocząca
+df_step_mean = df_month['czestotliwosc[Hz]'].rolling(window=1, step = None)
+# print("średnią minimalną wg miesiecy:", df_step_mean.min())
+# print("średnia maksymalną wg miesiecy:", df_step_mean.max())
 
-
+####WYKRES ZE ŚREDNIĄ KROCZĄCĄ
 # plot.figure(figsize = (7,5))
 # plot.scatter(df_month['miesiac'], df_step_mean.min())
 # plot.xlabel('Months')
@@ -33,96 +52,66 @@ df_step_mean = df_month['residua'].rolling(window=7, step = None)
 # plot.title("Rozkład średnich miesięcznych")
 # plot.show()
 
-##############
-#wczytanie csv
-df_days = pd.read_csv('data/df_days.csv', sep=';', decimal=',')
-#wczytanie csv
-df_hours = pd.read_csv('data/df_hours.csv', sep=';', decimal=',')
-#wczytanie csv
-df_minutes = pd.read_csv('data/df_minutes.csv', sep=';', decimal=',')
-#wczytanie csv
-df = pd.read_csv('data/df.csv', sep=';', decimal=',')
-
-
 ##########mediana
-df_median = df_month.groupby(['miesiac', 'rok']).median(numeric_only=True).reset_index()
-# print(df_median)
+df_median = df_days.groupby(['data']).median(numeric_only=True).reset_index()
+# print(min(df_median['przyspieszenie']))
 
-# plot.figure(figsize = (7,5))
-# plot.scatter(df_median['miesiac'], df_median['residua'])
+
+###WYKRES DLA MEDIANY
+# plot.figure(figsize = (15,6))
+# plot.scatter(df_median['data'], df_median['przyspieszenie'])
 # #plot.plot(df_month['residua'])
 # plot.xlabel('Months')
 # plot.ylabel('Residua')
-# plot.title("Rozkład mediany według godzin w ciągu roku")
+# plot.title("Rozkład mediany według dni w ciągu roku")
 # plot.show()
 
+
+##########kwantyle
+# q25 = df_month.quantile(q=0.25, interpolation='nearest', numeric_only=True)
+# print("Wyniki w pierwszym kwartylu:", q25)
+# q50 = df_month.quantile(q=0.50, interpolation='nearest', numeric_only=True)
+# print("Wyniki w drugim kwartylu:", q50)
+# q75 = df_month.quantile(q=0.75, interpolation='nearest', numeric_only=True)
+# print("Wyniki w trzecim kwartylu:", q75)
+
+# q25 = df_month.quantile(q=0.25, interpolation='higher', numeric_only=True)
+# print("Wyniki w pierwszym kwartylu:", q25)
+# q50 = df_month.quantile(q=0.50, interpolation='higher', numeric_only=True)
+# print("Wyniki w drugim kwartylu:", q50)
+# q75 = df_month.quantile(q=0.75, interpolation='higher', numeric_only=True)
+# print("Wyniki w trzecim kwartylu:", q75)
+
+# q25 = df_month.quantile(q=0.25, interpolation='lower', numeric_only=True)
+# print("Wyniki w pierwszym kwartylu:", q25)
+# q50 = df_month.quantile(q=0.50, interpolation='lower', numeric_only=True)
+# print("Wyniki w drugim kwartylu:", q50)
+# q75 = df_month.quantile(q=0.75, interpolation='lower', numeric_only=True)
+# print("Wyniki w trzecim kwartylu:", q75)
+
+
+###WYKRESY DO KWANTYLI??
+#sns.lmplot(x="przyspieszenie", y="liczba", hue="smoker", col="time", data=df_month);
 
 ##########odchylenie_standardowe
-df_std = df_month.groupby(['miesiac', 'rok']).std()
-# print(df_std)
-
-# plot.figure(figsize = (7,5))
-# # plot.plot(df_std['przyspieszenie'])
-# plot.scatter(df_std['miesiac'], df_std['czestotliwosc[Hz]'])
-# plot.xlabel('Months')
-# plot.ylabel('Frequency')
-# plot.title("Rozkład odchylenia standardowego na przestrzeni miesięcy")
-# plot.show()
+# std = df_month.std()
+# print(std)
 
 ##########wariancja
-df_var = df_month.groupby('miesiac')['czestotliwosc[Hz]'].var()
-
-# plot.figure(figsize = (7,5))
-# #plot.plot(df_month['czestotliwosc[Hz]'])
-# plot.scatter(df_var['miesiac'], df_var['czestotliwosc[Hz]'])
-# plot.xlabel('Months')
-# plot.ylabel('Frequency')
-# plot.title("Rozkład wariancji częstotliwości na przestrzeni miesięcy")
-# plot.show()
+# var = df_month.var()
+# print(var)
 
 ########odchylenie_centralne
-# std2 = df_month.groupby('miesiac')['czestotliwosc[Hz]'].std()
-# mean2 = df_month.groupby(['miesiac'], ['rok']).mean(numeric_only=True)
+std2 = df_month['przyspieszenie'].std()
+mean2 = df_month['przyspieszenie'].mean()
 
-# stdc = mean2 - std2
+stdc = mean2 - std2
 # print(stdc)
 
-# plot.figure(figsize = (10,7))
-# plot.plot(stdc)
-# plot.xlabel('Months')
-# plot.ylabel('Przyspieszenie')
-# plot.title("Rozkład odchylenia standardowego na przestrzeni miesięcy")
-# plot.show()
-
-
-##########quantils
-q = df_month.groupby(['miesiac', 'rok']).quantile(q=0.25)
-
-# plot.figure(figsize = (7,5))
-# #plot.plot(df_month['czestotliwosc[Hz]'])
-# plot.scatter(df_month['miesiac'], q)
-# plot.xlabel('Months')
-# plot.ylabel('Frequency')
-# plot.title("\kwantyle częstotliwości na przestrzeni miesięcy")
-# plot.show()
-
-##########corelation
-cor = df_month.groupby(['cisnienie[mBar]', 'czestotliwosc[Hz]']).corr(method='spearman')
-# core = ([df_month['miesiac'], df_month['przyspieszenie']])
-# plot.figure(figsize = (7,5))
-# #plot.plot(df_month['czestotliwosc[Hz]'])
-# plot.scatter(df_month['miesiac'], q)
-# plot.xlabel('Months')
-# plot.ylabel('Frequency')
-# plot.title("\kwantyle częstotliwości na przestrzeni miesięcy")
-# plot.show()
-
-# cor.corr(method='spearman')
+#########KORELACJA
+cor = df_month[['miesiac', 'raw[nm/s2]', 'cisnienie[mBar]', 'residua', 'przyspieszenie', 'czestotliwosc[Hz]']].corr()
 # print(cor)
+save_string = cor.to_string(header=False, index=False)
 
-plot.figure(figsize = (7,5))
-plot.plot(cor)
-plot.xlabel('Months')
-plot.ylabel('Przyspieszenie')
-plot.title("Korelacja metodą rang Spearmana")
-plot.show()
+# with open('korelacja.txt', 'w') as f:
+#     f.write(save_string)
