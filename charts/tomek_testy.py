@@ -62,26 +62,34 @@ df_step_mean = df_month['przyspieszenie'].rolling(window=3, step = None)
 # plot.title("Rozkład średnich miesięcznych")
 # plot.show()
 # Wczytaj istniejący plik CSV
-with open('data/df_month.csv', 'r') as file:
-    lines = file.readlines()
+# with open('data/df_month_step.csv', 'r') as file:
+#     lines = file.readlines()
 
-# Zmiana separatora (zakładając, że aktualny separator to przecinek ',')
-new_separator = ';'
-lines = [line.replace(',', new_separator) for line in lines]
+# df_month_step = pd.read_csv('data/df_month_step.csv', sep=';', decimal=',')
 
-# Zapisz zmienione dane do pliku CSV
-with open('df_month_step.csv', 'w', newline='') as file:
-    writer = list(csv.writer(file, delimiter=new_separator))
-    writer.writerows(lines)
+# string = df_month_step['miesiac'].to_string(index=False)
 
+miesiace = ['3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
 
-df_step = pd.DataFrame({'data': writer, 'średnia krocząca': df_step_mean, 'przyspieszenie': writer['przyspieszenie']})
+df_step = pd.DataFrame({'data': miesiace, 'średnia krocząca': df_step_mean, 'przyspieszenie': df_month_step['przyspieszenie']})
 sns.lineplot( x='data', y='przyspieszenie', label='pomiar grawimetryczny')
 sns.lineplot( x='data', y='średnia krocząca', label='średnia krocząca miesięcy')
 plot.xlabel('data')
 plot.ylabel('przyspieszenie')
 plot.legend()
 plot.show()
+
+# # Nie można użyć writer jako DataFrame, musisz użyć wcześniej utworzonych danych
+# df_month['data'] = [row[0] for row in lines]  # Przyjmuję, że dane, które chcesz umieścić w kolumnie 'data', są w pierwszej kolumnie w lines
+
+# df_step = pd.DataFrame({'data': df_month['data'], 'średnia krocząca': df_step_mean, 'przyspieszenie': [row[1] for row in lines]})  # Zmieniłem 'writer['przyspieszenie']' na [row[1] for row in lines]
+# sns.lineplot(x='data', y='przyspieszenie', data=df_step, label='pomiar grawimetryczny')
+# sns.lineplot(x='data', y='średnia krocząca', data=df_step, label='średnia krocząca miesięcy')
+# plot.xlabel('data')
+# plot.ylabel('przyspieszenie')
+# plot.legend()
+# plot.show()
+
 
 ##########mediana
 df_median = df_days.groupby(['data']).median(numeric_only=True).reset_index()
@@ -101,34 +109,47 @@ df_median = df_days.groupby(['data']).median(numeric_only=True).reset_index()
 
 
 ##########kwantyle
-# q25 = df_month.quantile(q=0.25, interpolation='nearest', numeric_only=True)
+# q25 = df_days.quantile(q=0.25, interpolation='nearest', numeric_only=True)
 # print("Wyniki w pierwszym kwartylu:", q25)
-# q50 = df_month.quantile(q=0.50, interpolation='nearest', numeric_only=True)
+# q50 = df_days.quantile(q=0.50, interpolation='nearest', numeric_only=True)
 # print("Wyniki w drugim kwartylu:", q50)
-# q75 = df_month.quantile(q=0.75, interpolation='nearest', numeric_only=True)
+# q75 = df_days.quantile(q=0.75, interpolation='nearest', numeric_only=True)
 # print("Wyniki w trzecim kwartylu:", q75)
 
-# q25 = df_month.quantile(q=0.25, interpolation='higher', numeric_only=True)
+# q25 = df_days.quantile(q=0.25, interpolation='higher', numeric_only=True)
 # print("Wyniki w pierwszym kwartylu:", q25)
-# q50 = df_month.quantile(q=0.50, interpolation='higher', numeric_only=True)
+# q50 = df_days.quantile(q=0.50, interpolation='higher', numeric_only=True)
 # print("Wyniki w drugim kwartylu:", q50)
-# q75 = df_month.quantile(q=0.75, interpolation='higher', numeric_only=True)
+# q75 = df_days.quantile(q=0.75, interpolation='higher', numeric_only=True)
 # print("Wyniki w trzecim kwartylu:", q75)
 
-# q25 = df_month.quantile(q=0.25, interpolation='lower', numeric_only=True)
+# q25 = df_month['przyspieszenie'].quantile(q=0.25, interpolation='lower')
 # print("Wyniki w pierwszym kwartylu:", q25)
-# q50 = df_month.quantile(q=0.50, interpolation='lower', numeric_only=True)
+# q50 = df_month['przyspieszenie'].quantile(q=0.50, interpolation='lower')
 # print("Wyniki w drugim kwartylu:", q50)
-# q75 = df_month.quantile(q=0.75, interpolation='lower', numeric_only=True)
+# q75 = df_month['przyspieszenie'].quantile(q=0.75, interpolation='lower')
 # print("Wyniki w trzecim kwartylu:", q75)
 
+###WYKRESY DO KWANTYLI
+# grupa = {'I': df_month['przyspieszenie'][:3],
+# 'II': df_month['przyspieszenie'][4:7],
+# 'III': df_month['przyspieszenie'][8:11]}
 
-###WYKRESY DO KWANTYLI??
-#sns.lmplot(x="przyspieszenie", y="liczba", hue="smoker", col="time", data=df_month);
+# # sns.violinplot(data=df_month, x=df_month['przyspieszenie'], y=grupa)
+# sns.violinplot(data=pd.DataFrame(grupa))
+# plot.show()
+
 
 ##########odchylenie_standardowe
-# std = df_month.std()
-# print(std)
+std_month = df_month['przyspieszenie'].std()
+std_day = df_days['przyspieszenie'].std()
+std_hours = df_hours['przyspieszenie'].std()
+
+# # WYKRES DO ODCHYLENIA
+# data = [std_month, std_day, std_hours]
+# plot.bar(np.arange(len(data)), data)
+# plot.xticks(np.arange(len(data)),['std miesięczne', 'std dzienne', 'std godzinne'])
+# plot.show()
 
 ##########wariancja
 # var = df_month.var()
@@ -148,3 +169,14 @@ save_string = cor.to_string(header=False, index=False)
 
 # with open('korelacja.txt', 'w') as f:
 #     f.write(save_string)
+
+data = np.array([df_days['przyspieszenie'],
+                 df_days['czestotliwosc[Hz]']])
+
+correlation_matrix = np.corrcoef(data)
+plot.imshow(correlation_matrix, cmap='RdBu', vmin=-1, vmax=1)
+plot.colorbar()
+plot.title('Wykres korelacji')
+plot.xticks([0, 1], ['g', 'Hz'])
+plot.yticks([0, 1], ['g', 'Hz'])
+plot.show()
