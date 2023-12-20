@@ -34,14 +34,12 @@ def download_data_from_files(path, day_start, day_end):
     print('daty')
     # zamiana stringów danych na inny format
     df['data'] = pd.to_datetime(df['data'])
-    # df['godzina'] = df['godzina'].str.replace(" ", ":")
     df['czas'] = df['data'] + pd.to_timedelta(df['godzina'])
     df['cisnienie[mBar]'] = df['cisnienie[mBar]'].astype(float)
     df['raw[nm/s2]'] = df['raw[nm/s2]'].astype(float)
     df['residua'] = df['residua'].astype(float)
 
     # usuwanie błędnych danych
-    # df = df[(df['residua[nm/s2]'] > 0 )&(df['residua[nm/m2]'] > 0 )]
     df = df[(df['raw[nm/s2]'] != -9999)&(df['residua'] != -9999)]
 
     print('wstawianie pustych')
@@ -85,7 +83,7 @@ def calculate_frequency(df):
     liczba_probek = len(df['residua'])
 
     # Przeliczenie jednostek przyspieszenia z nm/s^2 na mGal
-    df['przyspieszenie'] = df['residua'] / (10**4)
+    df['przyspieszenie'] = df['residua'] / (10**5)
     df['przyspieszenie']= np.log(df['przyspieszenie'])
     przyspieszenie = df['przyspieszenie'].values
 

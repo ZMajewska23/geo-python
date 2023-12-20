@@ -29,5 +29,4 @@ def create_colorbar(df_hours, liczbadni):
     plot.colorbar()
     plot.xlabel('Dzień')
     plot.ylabel('Godzina')
-    #plot.savefig(path.join(outpath, "colorbar155_{0}.png".format(day)))
     plot.show()

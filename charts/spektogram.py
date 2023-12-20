@@ -13,9 +13,8 @@ def create_spectogram(df):
         f, t, Sxx = signal.spectrogram(df_minutes_day['residua'], fs=1)
     
         plot.pcolormesh(t, f, Sxx, shading = 'gouraud')
-        plot.ylim(0,0.5)
-        plot.xlabel('Time [min]')
-        plot.ylabel('Frequency [Hz]')
+        plot.ylim(0,0.01)
+        plot.xlabel('Czas[min]')
+        plot.ylabel('Residua [mGal]')
         plot.draw() 
-        # plot.savefig(path.join(outpath,"spektogram155_{0}.png".format(day)))
         plot.show()
